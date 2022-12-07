@@ -35,34 +35,24 @@ const result = async () => {
       second: [],
     },
   ];
-  let counter = 1;
-  let rucksack = 0;
-  let shared = new Set();
+  let counter = 0;
+  let sum = 0;
   for await (const line of stream) {
     const entry = Array.from(line);
-    const odd = counter % 2 !== 0;
-    if (!rucksacks[rucksack])
-      rucksacks[rucksack] = {
-        first: [],
-        second: [],
-      };
-    if (odd) {
-      rucksacks[rucksack].first = entry;
-    } else {
-      rucksacks[rucksack].second = entry;
-      const curr = duplicates(
-        rucksacks[rucksack].first ?? [],
-        rucksacks[rucksack].second ?? [],
-      );
-      curr.forEach((data) => shared.add(data));
-      rucksack++;
-    }
-    counter++;
+    const half = Math.ceil(entry.length / 2);
+    const first = entry.slice(0, half);
+    const second = entry.slice(half);
+    rucksacks[counter] = {
+      first,
+      second,
+    };
+    const duplicated = duplicates(first, second);
+    sum += duplicated.reduce(
+      (accumulator, currentValue) => accumulator + prio(currentValue),
+      0,
+    );
   }
-  const result = [...shared]
-    .map((curr) => prio(curr as string))
-    .reduce((curr, total) => (total += curr));
-  console.log(result);
+  console.log(sum);
 };
 
 result().then();
