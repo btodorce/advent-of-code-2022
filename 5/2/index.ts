@@ -61,12 +61,16 @@ const result = async () => {
     const [take, from, to] = instruction
       .split(/move|from|to /)
       .filter((item) => item !== "");
+    const data = [];
     for (let howMany = 0; howMany < Number(take); howMany++) {
       const idFrom = Number(from);
-      const idTo = Number(to);
       const item = crates[idFrom].data.pop() as string;
-      crates[idTo].data.push(item);
+      data.push(item);
     }
+    data.reverse().forEach((item) => {
+      const idTo = Number(to);
+      crates[idTo].data.push(item);
+    });
     const debug = "test";
   }
   for (let counter = 1; counter <= 9; counter++) {
