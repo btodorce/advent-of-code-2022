@@ -8,12 +8,15 @@ const result = async () => {
   }
   let longest: string[] = [];
   let pos = 0;
+  const size = data.length;
   [...data].find((char, index) => {
-    if (longest.length === 4) {
+    if (longest.length === 14) {
+      console.log(longest);
       const set = [...new Set(longest)];
-      if (set.length === 4) {
+      if (set.length === 14) {
+        console.log(set.length);
         pos = index;
-        return char;
+        return index;
       }
       longest = [];
     }
