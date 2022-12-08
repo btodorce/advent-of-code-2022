@@ -7,7 +7,7 @@ type Rucksack = {
   };
 };
 
-const prio = (data: string) => {
+export const prio = (data: string) => {
   const lowercase = data === data.toLowerCase();
   const result = lowercase ? data.charCodeAt(0) - 96 : data.charCodeAt(0) - 38;
   if (lowercase) {
@@ -16,7 +16,7 @@ const prio = (data: string) => {
   return result;
 };
 
-const duplicates = (first: string[], second: string[]) => {
+export const duplicates = (first: string[], second: string[]) => {
   let duplicates = [];
   for (const a of first) {
     for (const b of second) {
@@ -52,7 +52,7 @@ const result = async () => {
       0,
     );
   }
-  console.log(sum);
+  return sum;
 };
 
 result().then();

@@ -37,7 +37,6 @@ const processFileLineByLine = async (path: string) => {
       helpers[current].count += Number(line);
     }
   }
-  console.log(largest);
   return largest;
 };
 
