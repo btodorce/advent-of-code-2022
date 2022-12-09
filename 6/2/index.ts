@@ -8,7 +8,6 @@ const result = async () => {
   }
   let longest = 0;
   const len = data.length;
-  const size = data.length;
   for (let index = 0; index < data.length; index++) {
     if (len - index > 0) {
       const array = [...data].slice(index, index + 14);
@@ -17,7 +16,6 @@ const result = async () => {
         longest = index + 14;
         break;
       }
-      const debug = "test";
     }
   }
   return longest;
