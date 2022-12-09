@@ -6,23 +6,21 @@ const result = async () => {
   for await (const line of stream) {
     data += line;
   }
-  let longest: string[] = [];
-  let pos = 0;
+  let longest = 0;
+  const len = data.length;
   const size = data.length;
-  [...data].find((char, index) => {
-    if (longest.length === 14) {
-      console.log(longest);
-      const set = [...new Set(longest)];
-      if (set.length === 14) {
-        console.log(set.length);
-        pos = index;
-        return index;
+  for (let index = 0; index < data.length; index++) {
+    if (len - index > 0) {
+      const array = [...data].slice(index, index + 14);
+      const unique = [...new Set(array)];
+      if (unique.length === 14) {
+        longest = index + 14;
+        break;
       }
-      longest = [];
+      const debug = "test";
     }
-    longest.push(char);
-  });
-  return pos;
+  }
+  return longest;
 };
 
 result().then((data) => console.log(data));
