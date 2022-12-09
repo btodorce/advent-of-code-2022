@@ -30,10 +30,10 @@ export class GraphNode {
   previous?: Maybe<GraphNode>;
   constructor(data: File | Dir, previous: Maybe<GraphNode> = null) {
     this.node = data;
-    if (data.type === "dir") {
+    if (data.type === Types.DIR) {
       this.next = [];
     }
-    if (data.type === "file") {
+    if (data.type === Types.FILE) {
       this.next = null;
     }
     this.previous = previous;
