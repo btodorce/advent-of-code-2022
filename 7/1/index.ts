@@ -19,8 +19,6 @@ const result = async () => {
           current = current.previous;
         } else {
           const node = current.next?.find((curr) => curr?.node?.name === dir);
-          node.next = [];
-          node.previous = current;
           current = node;
         }
       }
@@ -34,17 +32,16 @@ const result = async () => {
         const [size, name] = line.split(" ");
         const file = new File(name, Number(size));
         const node = fs.addFile(file, current);
-        node.previous = current;
         fs.root.node.size += node.node.size;
-        let iterator = current;
-        while (
-          (iterator.previous.node !== fs.root.node ||
-            iterator.previous.node !== null) &&
-          iterator.previous.node.type === "dir"
-        ) {
-          iterator.node.size += node.node.size;
-          iterator = iterator.previous;
-        }
+        // let iterator = current;
+        // while (
+        //   (iterator.previous.node !== fs.root.node ||
+        //     iterator.previous.node !== null) &&
+        //   iterator.previous.node.type === "dir"
+        // ) {
+        //   iterator.node.size += node.node.size;
+        //   iterator = iterator.previous;
+        // }
         current.next.push(node);
       }
     }
