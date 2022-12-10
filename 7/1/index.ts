@@ -2,14 +2,11 @@ import { processFile } from "../../process-file";
 import { Dir, File, FileSystem } from "./Graph";
 
 const result = async () => {
-  const stream = await processFile("7/data.txt");
+  const stream = await processFile("7/dummy.txt");
   const root = new Dir("\\");
   const fs = new FileSystem(root);
   let current = fs.root;
   for await (const line of stream) {
-    if (current.node.type === "dir") {
-      current.next = [];
-    }
     if (line.includes("$ cd /")) continue;
     if (line.includes("$")) {
       // Process command
@@ -18,7 +15,7 @@ const result = async () => {
         if (dir === "..") {
           current = current.previous;
         } else {
-          const node = current.next?.find((curr) => curr?.node?.name === dir);
+          const node = current.next?.find((curr) => curr?.node.name === dir);
           current = node;
         }
       }
@@ -32,21 +29,14 @@ const result = async () => {
         const [size, name] = line.split(" ");
         const file = new File(name, Number(size));
         const node = fs.addFile(file, current);
+        if (current.node.type === "dir") {
+          current.next.push(node);
+        }
         fs.root.node.size += node.node.size;
-        // let iterator = current;
-        // while (
-        //   (iterator.previous.node !== fs.root.node ||
-        //     iterator.previous.node !== null) &&
-        //   iterator.previous.node.type === "dir"
-        // ) {
-        //   iterator.node.size += node.node.size;
-        //   iterator = iterator.previous;
-        // }
-        current.next.push(node);
       }
     }
   }
-  console.log(current);
+  return current;
 };
 
-result().then();
+result().then((data) => console.log(data));
