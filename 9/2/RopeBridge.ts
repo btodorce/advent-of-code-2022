@@ -1,5 +1,3 @@
-import { cp } from "fs";
-
 type Position = {
   row: number;
   column: number;
@@ -20,75 +18,91 @@ export class RopeBridge {
   constructor(size: number) {
     const len = size / 2 - 1;
     this.head = {
-      row: len,
-      column: len,
+      row: size - 1,
+      column: 0,
     };
     this.tail = {
-      row: len,
-      column: len,
+      row: size - 1,
+      column: 0,
     };
-    this.board = Array(size)
+    this.board = Array(5)
       .fill(null)
-      .map(() => Array(size).fill("."));
-    this.updatePosition(this.head.row, this.head.column, "S");
+      .map(() => Array(6).fill("."));
   }
 
   private follow(direction: Direction) {
-    const colDiff = Math.abs(this.head.column - this.tail.column);
-    const rowDiff = Math.abs(this.head.row - this.tail.row);
-    if (
-      this.tail.row === this.head.row &&
-      this.tail.column === this.head.column
-    )
-      return;
-    if (rowDiff < 2 && colDiff < 2) return;
-    // On the same check if they are overlapping or 1 col apart
-    if (this.tail.row === this.head.row) {
-      if (colDiff < 1) return;
-      if (this.head.column > this.tail.column) this.tail.column++;
-      else if (this.head.column < this.tail.column) this.tail.column--;
-      const debug = "test";
-    } else {
-      if (rowDiff < 1) return;
-      if (this.head.column > this.tail.column) this.tail.column++;
-      else if (this.head.column < this.tail.column) this.tail.column--;
-      if (this.head.row > this.tail.row) this.tail.row++;
-      else if (this.head.row < this.tail.row) this.tail.row--;
-      const debug = "test";
-    }
-    this.updatePosition(this.tail.row, this.tail.column, "T");
+    // const difference = Math.abs(
+    //   this.head.column - this.tail.column - (this.head.row - this.tail.row),
+    // );
+    // if (
+    //   this.tail.row === this.head.row &&
+    //   this.tail.column === this.head.column
+    // )
+    //   return;
+    // if (difference <= 1 && this.head.row === this.tail.row) return;
+    // if (
+    //   difference < 1 &&
+    //   this.head.row !== this.tail.row &&
+    //   direction !== Direction.D
+    // )
+    //   return;
+    // if (direction === Direction.R) {
+    //   if (this.tail.row !== this.head.row) {
+    //     this.tail.row = this.head.row;
+    //   }
+    //   this.tail.column++;
+    // }
+    // if (direction === Direction.L) {
+    //   if (this.tail.row !== this.head.row) {
+    //     this.tail.row = this.head.row;
+    //   }
+    //   this.tail.column--;
+    // }
+    // if (direction === Direction.U) {
+    //   if (this.tail.column !== this.head.column) {
+    //     this.tail.column = this.head.column;
+    //   }
+    //   this.tail.row++;
+    // }
+    // if (direction === Direction.D) {
+    //   if (this.tail.column !== this.head.column) {
+    //     this.tail.column = this.head.column;
+    //   }
+    //   this.tail.row--;
+    // }
+    // this.updatePosition(this.tail.row, this.tail.column, "T");
   }
 
   moveRight(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
-      this.follow(Direction.R);
       this.head.column++;
       steps--;
+      this.follow(Direction.R);
     }
   }
   moveLeft(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
-      this.follow(Direction.L);
       this.head.column--;
       steps--;
+      this.follow(Direction.L);
     }
   }
   moveUp(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
-      this.follow(Direction.U);
       this.head.row--;
       steps--;
+      this.follow(Direction.U);
     }
   }
   moveDown(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
-      this.follow(Direction.D);
       this.head.row++;
       steps--;
+      this.follow(Direction.D);
     }
   }
 
@@ -105,6 +119,6 @@ export class RopeBridge {
           count++;
       }
     }
-    return count;
+    return count + 1;
   }
 }
