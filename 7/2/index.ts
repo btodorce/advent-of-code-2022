@@ -2,7 +2,6 @@ import { processFile } from "../../process-file";
 import { Dir, File, FileSystem, GraphNode } from "../Graph";
 
 const result = async () => {
-  const MAX_SIZE = 100000;
   const stream = await processFile("7/data.txt");
   const root = new Dir("\\");
   const fs = new FileSystem(root);
@@ -46,17 +45,17 @@ const result = async () => {
         if (current.node.type === "dir") {
           current.next.push(node);
         }
-        fs.root.node.size += node.node.size;
         updateDirSizes(node);
       }
     }
   }
-  const unique = largerThanN.filter(
-    (item, pos) => largerThanN.indexOf(item) == pos,
-  );
-  const result = unique.filter((dir) => dir.size <= MAX_SIZE);
-  const sum = result.reduce((total, dir) => (total += dir.size), 0);
-  return sum;
+  const MIN_SIZE = 30000000;
+  const shouldFree = 70000000 - fs.root.node.size;
+  const unique = largerThanN
+    .filter((item, pos) => largerThanN.indexOf(item) == pos)
+    .filter((dir) => dir.size >= shouldFree);
+  const sorted = unique.sort((f, s) => f.size - s.size);
+  return sorted[0].size;
 };
 
 result().then((data) => console.log(data));

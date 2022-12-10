@@ -1,4 +1,4 @@
-import { Maybe } from "../../types";
+import { Maybe } from "../types";
 
 enum Types {
   DIR = "dir",
