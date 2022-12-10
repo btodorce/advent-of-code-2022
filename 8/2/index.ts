@@ -9,18 +9,27 @@ const shouldBreak = (row: number, column: number, array: any[]): boolean => {
   return false;
 };
 
-const visible = (data: number, array: any[], r: number, c: number) => {
+const calculateViewDistance = (
+  data: number,
+  array: any[],
+  r: number,
+  c: number,
+) => {
   let row = r;
   let column = c - 1;
   const siblings = {
-    left: [],
-    right: [],
-    bottom: [],
-    top: [],
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0,
   };
+  if (r === 3 && c === 2) {
+    const debug = "de";
+  }
   checkLeft: while (array[row][column]) {
     const current = Number(array[row][column]);
-    if (current >= data) siblings.left.push(current);
+    siblings.left++;
+    if (current >= data) break;
     column--;
     if (shouldBreak(row, column, array)) break;
   }
@@ -28,7 +37,8 @@ const visible = (data: number, array: any[], r: number, c: number) => {
   column = c + 1;
   checkRight: while (array[row][column]) {
     const current = Number(array[row][column]);
-    if (current >= data) siblings.right.push(current);
+    siblings.right++;
+    if (current >= data) break;
     column++;
     if (shouldBreak(row, column, array)) break;
   }
@@ -36,7 +46,8 @@ const visible = (data: number, array: any[], r: number, c: number) => {
   column = c;
   checkBottom: while (array[row][column]) {
     const current = Number(array[row][column]);
-    if (current >= data) siblings.bottom.push(current);
+    siblings.bottom++;
+    if (current >= data) break;
     row++;
     if (shouldBreak(row, column, array)) break;
   }
@@ -44,18 +55,13 @@ const visible = (data: number, array: any[], r: number, c: number) => {
   column = c;
   checkTop: while (array[row][column]) {
     const current = Number(array[row][column]);
-    if (current >= data) siblings.top.push(current);
+    siblings.top++;
+    if (current >= data) break;
     row--;
     if (shouldBreak(row, column, array)) break;
   }
-  if (
-    siblings.top.length > 0 &&
-    siblings.bottom.length > 0 &&
-    siblings.left.length > 0 &&
-    siblings.right.length > 0
-  )
-    return false;
-  return true;
+  const sum = siblings.left * siblings.bottom * siblings.right * siblings.top;
+  return sum;
 };
 
 const edge = (data: string[], row: number, column: number): boolean => {
@@ -78,6 +84,7 @@ const result = async () => {
   const stream = await processFile("8/data.txt");
   const data = [];
   let result = 0;
+  const view: { tree: number; score: number }[] = [];
 
   for await (const line of stream) {
     const elements = line.split("");
@@ -92,13 +99,15 @@ const result = async () => {
         result++;
         continue;
       }
-      const isVisible = visible(current, data, row, column);
-      if (isVisible) {
-        result++;
-      }
+      const score = calculateViewDistance(current, data, row, column);
+      view.push({
+        tree: current,
+        score,
+      });
     }
   }
   const debug = "true";
+  const score = view.sort((a, b) => a.score - b.score);
   return result;
 };
 
