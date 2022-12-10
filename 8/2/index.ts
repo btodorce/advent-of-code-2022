@@ -106,9 +106,9 @@ const result = async () => {
       });
     }
   }
-  const debug = "true";
-  const score = view.sort((a, b) => a.score - b.score);
-  return result;
+  const score = view.sort((a, b) => b.score - a.score);
+  const last = score[0];
+  return last;
 };
 
 result().then((data) => console.log(data));
