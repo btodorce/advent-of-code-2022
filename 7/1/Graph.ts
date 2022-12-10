@@ -53,11 +53,9 @@ export class GraphNode<E extends File | Dir> {
 
 export class FileSystem {
   root: GraphNode<Dir>;
-  fileSize: LargeFiles[] = [];
   constructor(data: Dir) {
     this.root = new GraphNode(data, null);
     this.root.next = [];
-    this.fileSize = [];
   }
 
   addFile(file: File, previous: GraphNode<Dir>) {
@@ -68,19 +66,6 @@ export class FileSystem {
     };
     const node = new GraphNode(obj, previous);
     let iter = node;
-    while (iter.previous !== null) {
-      const id = iter.previous.node.name;
-      if (!this.fileSize[id]) {
-        this.fileSize[id] = {
-          children: [],
-        };
-      }
-      this.fileSize[id].children.push({
-        name: node.node.name,
-        size: node.node.size,
-      });
-      iter = iter.previous;
-    }
     return node;
   }
 
