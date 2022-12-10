@@ -40,14 +40,31 @@ const processInput = async (stream: Interface) => {
 
 const result = async () => {
   const stream = await processFile("10/data.txt");
+  let counter = 0;
+
   const values = await processInput(stream);
-  const val = [20, 60, 100, 140, 180, 220];
-  const result = values.reduce(
-    (total, value) =>
-      val.includes(value.id) ? total + value.id * value.register : total + 0,
-    0,
-  );
-  return result;
+  const crt = Array(7)
+    .fill(null)
+    .map(() => Array(40).fill("."));
+
+  for (let cycle of values) {
+    const row = Math.floor(cycle.id / 40);
+    const id = (cycle.id % 40) - 1;
+    const cmp = counter % 40;
+    const intersecting =
+      cycle.register === cmp ||
+      cycle.register + 1 === cmp ||
+      cycle.register - 1 === cmp;
+
+    if (intersecting) {
+      crt[row][id] = "#";
+    } else {
+      crt[row][id] = ".";
+    }
+    const debug = "as";
+    counter++;
+  }
+  return 0;
 };
 
 result().then((data) => console.log(data));
