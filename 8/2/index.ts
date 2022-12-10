@@ -12,16 +12,12 @@ const shouldBreak = (row: number, column: number, array: any[]): boolean => {
 const visible = (data: number, array: any[], r: number, c: number) => {
   let row = r;
   let column = c - 1;
-  if (r === 3 && c === 3) {
-    const debug = "true";
-  }
   const siblings = {
     left: [],
     right: [],
     bottom: [],
     top: [],
   };
-  // console.log("----------------------", `\n data: ${data}`);
   checkLeft: while (array[row][column]) {
     const current = Number(array[row][column]);
     if (current >= data) siblings.left.push(current);
@@ -98,7 +94,6 @@ const result = async () => {
       }
       const isVisible = visible(current, data, row, column);
       if (isVisible) {
-        // console.log(`\n Visible: ${current}, row: ${row} column: ${column}`);
         result++;
       }
     }
