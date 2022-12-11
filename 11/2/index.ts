@@ -3,7 +3,7 @@ import { processFile } from "../../process-file";
 
 type MonkeyBusiness = {
   id: number;
-  items: bigint[];
+  items: number[];
   operation?: {
     result: string;
     sign: string;
@@ -59,7 +59,7 @@ const processInput = async (stream: Interface) => {
         .replace("Starting items:", "")
         .replace(" ", "")
         .split(",");
-      items.forEach((item) => monkeys[current].items.push(BigInt(item)));
+      items.forEach((item) => monkeys[current].items.push(Number(item)));
     } else if (line.includes("Operation:")) {
       const [_, result, sign, first, operand, second] = line
         .replace("Operation: ", "")
@@ -107,6 +107,8 @@ const result = async () => {
   const stream = await processFile("11/dummy.txt");
   const data = await processInput(stream);
   const rounds: Round[] = [];
+  const MAX = Number.MAX_SAFE_INTEGER;
+  const MODULO = 10;
 
   for (let round = 0; round < ROUNDS; round++) {
     const monkeys = [...Object.values(data)];
@@ -115,35 +117,35 @@ const result = async () => {
       monkeys: {},
     };
     for (let monkey of monkeys) {
-      const { action, items, test, operation } = monkey;
+      const { items, operation } = monkey;
       let inspected = rounds?.[round - 1]?.monkeys?.[monkey.id]?.inspected ?? 0;
       items.forEach((item) => {
         inspected++;
-        const first =
-          operation.first === "old" ? BigInt(item) : BigInt(operation.first);
-        const second =
-          operation.second === "old" ? BigInt(item) : BigInt(operation.second);
-        let worry = BigInt(0);
+        let first = operation.first === "old" ? item : Number(operation.first);
+        let second =
+          operation.second === "old" ? item : Number(operation.second);
+        let worry = 0;
 
         switch (operation.operand) {
           case "+":
-            worry = first + second;
+            first + second > MAX
+              ? (worry = (first + second) % MODULO)
+              : first + second;
             break;
           case "-":
             worry = first - second;
             break;
           case "*":
-            worry = first * second;
-            break;
-          case "/":
-            worry = first / second;
+            first * second > MAX
+              ? (worry = (first * second) % MODULO)
+              : first * second;
             break;
           default:
             console.error(operation.sign);
             throw new Error(`${operation.operand} not supported`);
         }
-        const divisible = worry % BigInt(monkey.test);
-        const throwing = divisible === BigInt(0);
+        const divisible = worry % monkey.test;
+        const throwing = divisible === 0;
         const throwTo = throwing ? monkey.action.true : monkey.action.false;
         throwing
           ? monkeys[throwTo].items.push(worry)

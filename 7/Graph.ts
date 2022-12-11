@@ -42,6 +42,7 @@ export class GraphNode<E extends File | Dir> {
 
 export class FileSystem {
   root: GraphNode<Dir>;
+  nodes: Dir[] | File[];
   constructor(data: Dir) {
     this.root = new GraphNode(data, null);
     this.root.next = [];
@@ -54,7 +55,6 @@ export class FileSystem {
       type: Types.FILE,
     };
     const node = new GraphNode(obj, previous);
-    let iter = node;
     return node;
   }
 

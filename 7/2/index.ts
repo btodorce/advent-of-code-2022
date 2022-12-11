@@ -1,20 +1,23 @@
 import { processFile } from "../../process-file";
 import { Dir, File, FileSystem, GraphNode } from "../Graph";
 
+type Both = File | Dir;
+
 const result = async () => {
   const stream = await processFile("7/data.txt");
   const root = new Dir("\\");
   const fs = new FileSystem(root);
   let current = fs.root;
-  const largerThanN = [];
+  const nodes: Both[] = [];
 
   const updateDirSizes = (file: GraphNode<File>) => {
     let iter = file;
-    while (iter.previous !== null) {
-      if (iter.previous.node.type === "dir") {
-        largerThanN.push(iter.previous.node);
-        iter.previous.node.size += file.node.size;
+    fs.root.node.size += file.node.size;
+    while (iter.previous !== null || iter.node !== fs.root.node) {
+      if (iter.node.type === "dir") {
+        iter.node.size += file.node.size;
       }
+      nodes.push(iter.node);
       iter = iter.previous;
     }
   };
@@ -51,9 +54,8 @@ const result = async () => {
   }
   const MIN_SIZE = 30000000;
   const shouldFree = 70000000 - fs.root.node.size;
-  const unique = largerThanN
-    .filter((item, pos) => largerThanN.indexOf(item) == pos)
-    .filter((dir) => dir.size >= shouldFree);
+  const largeEnough = nodes.filter((dir) => dir.size >= shouldFree);
+  const unique = largeEnough.filter((item, pos) => nodes.indexOf(item) == pos);
   const sorted = unique.sort((f, s) => f.size - s.size);
   return sorted[0].size;
 };
