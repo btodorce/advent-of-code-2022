@@ -1,5 +1,3 @@
-import { cp } from "fs";
-
 type Position = {
   row: number;
   column: number;
@@ -35,24 +33,24 @@ export class RopeBridge {
   }
 
   private follow(id: number) {
+    const head = id === 1 ? this.head : this.tails[id - 1];
     const tail = this.tails[id];
-    const compare = id === 1 ? this.head : this.tails[id - 1];
-    const colDiff = Math.abs(compare.column - tail.column);
-    const rowDiff = Math.abs(compare.row - tail.row);
-    if (compare.row === tail.row && compare.column === tail.column) return;
+    const colDiff = Math.abs(head.column - tail.column);
+    const rowDiff = Math.abs(head.row - tail.row);
+    if (head.row === tail.row && head.column === tail.column) return;
     if (rowDiff < 2 && colDiff < 2) return;
     // On the same check if they are overlapping or 1 col apart
-    if (compare.row === tail.row) {
-      if (colDiff < 2) return;
-      if (tail.column > compare.column) compare.column++;
-      else if (tail.column < compare.column) compare.column--;
+    if (head.row === tail.row) {
+      if (colDiff < 1) return;
+      if (head.column > tail.column) tail.column++;
+      else if (head.column < tail.column) tail.column--;
       const debug = "test";
     } else {
-      if (rowDiff < 2) return;
-      if (tail.column > compare.column) compare.column++;
-      else if (tail.column < compare.column) compare.column--;
-      if (tail.row > compare.row) compare.row++;
-      else if (tail.row < compare.row) compare.row--;
+      if (rowDiff < 1) return;
+      if (head.column > tail.column) tail.column++;
+      else if (head.column < tail.column) tail.column--;
+      if (head.row > tail.row) tail.row++;
+      else if (head.row < tail.row) tail.row--;
       const debug = "test";
     }
     this.updatePosition(tail.row, tail.column, id);
@@ -61,6 +59,7 @@ export class RopeBridge {
   moveRight(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
+      // this.follow(1);
       this.tails.forEach((tail) => this.follow(tail.id));
       this.head.column++;
       steps--;
@@ -70,6 +69,7 @@ export class RopeBridge {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
       this.tails.forEach((tail) => this.follow(tail.id));
+      // this.follow(1);
       this.head.column--;
       steps--;
     }
@@ -78,6 +78,7 @@ export class RopeBridge {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
       this.tails.forEach((tail) => this.follow(tail.id));
+      // this.follow(1);
       this.head.row--;
       steps--;
     }
@@ -86,6 +87,7 @@ export class RopeBridge {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
       this.tails.forEach((tail) => this.follow(tail.id));
+      // this.follow(1);
       this.head.row++;
       steps--;
     }

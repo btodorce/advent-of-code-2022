@@ -2,8 +2,8 @@ import { processFile } from "../../process-file";
 import { RopeBridge } from "./RopeBridge";
 
 const result = async () => {
-  const stream = await processFile("9/data.txt");
-  const bridge = new RopeBridge(2000);
+  const stream = await processFile("9/dummy.txt");
+  const bridge = new RopeBridge(10);
 
   for await (const line of stream) {
     const [direction, pos] = line.split(" ");
