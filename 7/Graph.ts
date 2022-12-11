@@ -40,24 +40,35 @@ export class GraphNode<E extends File | Dir> {
   }
 }
 
-type Node = Dir | File;
-
 export class FileSystem {
   root: GraphNode<Dir>;
-  nodes: Node[] = [];
+  private _nodes: GraphNode<File | Dir>[] = [];
   constructor(data: Dir) {
     this.root = new GraphNode(data, null);
     this.root.next = [];
+  }
+
+  get nodes() {
+    return this._nodes.filter((item, pos) => this._nodes.indexOf(item) == pos);
   }
 
   private updateNodeSizes(file: GraphNode<File>) {
     let iter = file;
     this.root.node.size += file.node.size;
     while (iter.previous !== null || iter.node !== this.root.node) {
+      const exists = this._nodes.find(
+        (current) => current.node.name === iter.node.name,
+      );
       if (iter.node.type === "dir") {
         iter.node.size += file.node.size;
       }
-      this.nodes.push(iter.node);
+      if (!exists) this._nodes.push(iter);
+      else if (
+        exists &&
+        exists.node.type === "file" &&
+        exists.previous !== iter.previous
+      )
+        this._nodes.push(iter);
       iter = iter.previous;
     }
   }

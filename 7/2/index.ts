@@ -8,7 +8,6 @@ const result = async () => {
   const root = new Dir("\\");
   const fs = new FileSystem(root);
   let current = fs.root;
-  const nodes: Both[] = [];
 
   for await (const line of stream) {
     if (line.includes("$ cd /")) continue;
@@ -41,12 +40,9 @@ const result = async () => {
   }
   const MIN_SIZE = 30000000;
   const shouldFree = 70000000 - fs.root.node.size;
-  const largeEnough = fs.nodes.filter((dir) => dir.size >= shouldFree);
-  const unique = largeEnough.filter(
-    (item, pos) => fs.nodes.indexOf(item) == pos,
-  );
-  const sorted = unique.sort((f, s) => f.size - s.size);
-  return sorted[0].size;
+  const nodes = fs.nodes.filter((dir) => dir.node.size >= shouldFree);
+  const sorted = nodes.sort((f, s) => f.node.size - s.node.size);
+  return sorted[0].node.size;
 };
 
 result().then((data) => console.log(data));
