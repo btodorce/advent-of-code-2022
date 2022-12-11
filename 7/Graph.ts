@@ -54,8 +54,7 @@ export class FileSystem {
 
   private updateNodeSizes(file: GraphNode<File>) {
     let iter = file;
-    this.root.node.size += file.node.size;
-    while (iter.previous !== null || iter.node !== this.root.node) {
+    while (iter !== null) {
       const exists = this._nodes.find(
         (current) => current.node.name === iter.node.name,
       );
@@ -69,6 +68,7 @@ export class FileSystem {
         exists.previous !== iter.previous
       )
         this._nodes.push(iter);
+      if (!iter.previous) break;
       iter = iter.previous;
     }
   }

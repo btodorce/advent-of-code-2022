@@ -108,7 +108,6 @@ const result = async () => {
   const data = await processInput(stream);
   const rounds: Round[] = [];
   const MAX = Number.MAX_SAFE_INTEGER;
-  const MODULO = 10;
 
   for (let round = 0; round < ROUNDS; round++) {
     const monkeys = [...Object.values(data)];
@@ -128,17 +127,13 @@ const result = async () => {
 
         switch (operation.operand) {
           case "+":
-            first + second > MAX
-              ? (worry = (first + second) % MODULO)
-              : first + second;
+            worry = first + second;
             break;
           case "-":
             worry = first - second;
             break;
           case "*":
-            first * second > MAX
-              ? (worry = (first * second) % MODULO)
-              : first * second;
+            worry = first * second;
             break;
           default:
             console.error(operation.sign);

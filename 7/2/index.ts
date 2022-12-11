@@ -38,8 +38,10 @@ const result = async () => {
       }
     }
   }
-  const MIN_SIZE = 30000000;
-  const shouldFree = 70000000 - fs.root.node.size;
+  const MIN_SIZE = 30_000_000;
+  const freeSpace = 70_000_000 - fs.root.node.size;
+  const shouldFree = MIN_SIZE - freeSpace;
+  if (shouldFree >= MIN_SIZE) return 0;
   const nodes = fs.nodes.filter((dir) => dir.node.size >= shouldFree);
   const sorted = nodes.sort((f, s) => f.node.size - s.node.size);
   return sorted[0].node.size;
