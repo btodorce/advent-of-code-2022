@@ -10,18 +10,6 @@ const result = async () => {
   let current = fs.root;
   const nodes: Both[] = [];
 
-  const updateDirSizes = (file: GraphNode<File>) => {
-    let iter = file;
-    fs.root.node.size += file.node.size;
-    while (iter.previous !== null || iter.node !== fs.root.node) {
-      if (iter.node.type === "dir") {
-        iter.node.size += file.node.size;
-      }
-      nodes.push(iter.node);
-      iter = iter.previous;
-    }
-  };
-
   for await (const line of stream) {
     if (line.includes("$ cd /")) continue;
     if (line.includes("$")) {
@@ -48,14 +36,15 @@ const result = async () => {
         if (current.node.type === "dir") {
           current.next.push(node);
         }
-        updateDirSizes(node);
       }
     }
   }
   const MIN_SIZE = 30000000;
   const shouldFree = 70000000 - fs.root.node.size;
-  const largeEnough = nodes.filter((dir) => dir.size >= shouldFree);
-  const unique = largeEnough.filter((item, pos) => nodes.indexOf(item) == pos);
+  const largeEnough = fs.nodes.filter((dir) => dir.size >= shouldFree);
+  const unique = largeEnough.filter(
+    (item, pos) => fs.nodes.indexOf(item) == pos,
+  );
   const sorted = unique.sort((f, s) => f.size - s.size);
   return sorted[0].size;
 };

@@ -40,12 +40,26 @@ export class GraphNode<E extends File | Dir> {
   }
 }
 
+type Node = Dir | File;
+
 export class FileSystem {
   root: GraphNode<Dir>;
-  nodes: Dir[] | File[];
+  nodes: Node[] = [];
   constructor(data: Dir) {
     this.root = new GraphNode(data, null);
     this.root.next = [];
+  }
+
+  private updateNodeSizes(file: GraphNode<File>) {
+    let iter = file;
+    this.root.node.size += file.node.size;
+    while (iter.previous !== null || iter.node !== this.root.node) {
+      if (iter.node.type === "dir") {
+        iter.node.size += file.node.size;
+      }
+      this.nodes.push(iter.node);
+      iter = iter.previous;
+    }
   }
 
   addFile(file: File, previous: GraphNode<Dir>) {
@@ -55,6 +69,7 @@ export class FileSystem {
       type: Types.FILE,
     };
     const node = new GraphNode(obj, previous);
+    this.updateNodeSizes(node);
     return node;
   }
 
