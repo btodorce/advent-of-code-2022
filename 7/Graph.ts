@@ -5,17 +5,6 @@ enum Types {
   FILE = "file",
 }
 
-type ChildrenNode = {
-  name: string;
-  size: number;
-};
-
-type LargeFiles = {
-  [id: string]: {
-    children: ChildrenNode[];
-  };
-};
-
 export class File {
   name: string;
   size: number;

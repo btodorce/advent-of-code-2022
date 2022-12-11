@@ -1,124 +1,109 @@
+import { cp } from "fs";
+
 type Position = {
   row: number;
   column: number;
 };
 
-enum Direction {
-  "U" = "up",
-  "D" = "down",
-  "L" = "left",
-  "R" = "right",
-}
+type Tail = {
+  id: number;
+} & Position;
 
 export class RopeBridge {
   head: Position;
-  tail: Position;
+  tails: Tail[];
   board: any[][];
 
   constructor(size: number) {
     const len = size / 2 - 1;
     this.head = {
-      row: size - 1,
-      column: 0,
+      row: len,
+      column: len,
     };
-    this.tail = {
-      row: size - 1,
-      column: 0,
-    };
-    this.board = Array(5)
+    this.tails = [];
+    for (let i = 1; i < 10; i++) {
+      this.tails[i] = {
+        id: i,
+        row: len,
+        column: len,
+      };
+    }
+    this.board = Array(size)
       .fill(null)
-      .map(() => Array(6).fill("."));
+      .map(() => Array(size).fill("."));
+    this.updatePosition(this.head.row, this.head.column, "S");
   }
 
-  private follow(direction: Direction) {
-    // const difference = Math.abs(
-    //   this.head.column - this.tail.column - (this.head.row - this.tail.row),
-    // );
-    // if (
-    //   this.tail.row === this.head.row &&
-    //   this.tail.column === this.head.column
-    // )
-    //   return;
-    // if (difference <= 1 && this.head.row === this.tail.row) return;
-    // if (
-    //   difference < 1 &&
-    //   this.head.row !== this.tail.row &&
-    //   direction !== Direction.D
-    // )
-    //   return;
-    // if (direction === Direction.R) {
-    //   if (this.tail.row !== this.head.row) {
-    //     this.tail.row = this.head.row;
-    //   }
-    //   this.tail.column++;
-    // }
-    // if (direction === Direction.L) {
-    //   if (this.tail.row !== this.head.row) {
-    //     this.tail.row = this.head.row;
-    //   }
-    //   this.tail.column--;
-    // }
-    // if (direction === Direction.U) {
-    //   if (this.tail.column !== this.head.column) {
-    //     this.tail.column = this.head.column;
-    //   }
-    //   this.tail.row++;
-    // }
-    // if (direction === Direction.D) {
-    //   if (this.tail.column !== this.head.column) {
-    //     this.tail.column = this.head.column;
-    //   }
-    //   this.tail.row--;
-    // }
-    // this.updatePosition(this.tail.row, this.tail.column, "T");
+  private follow(id: number) {
+    const tail = this.tails[id];
+    const compare = id === 1 ? this.head : this.tails[id - 1];
+    const colDiff = Math.abs(compare.column - tail.column);
+    const rowDiff = Math.abs(compare.row - tail.row);
+    if (compare.row === tail.row && compare.column === tail.column) return;
+    if (rowDiff < 2 && colDiff < 2) return;
+    // On the same check if they are overlapping or 1 col apart
+    if (compare.row === tail.row) {
+      if (colDiff < 2) return;
+      if (tail.column > compare.column) compare.column++;
+      else if (tail.column < compare.column) compare.column--;
+      const debug = "test";
+    } else {
+      if (rowDiff < 2) return;
+      if (tail.column > compare.column) compare.column++;
+      else if (tail.column < compare.column) compare.column--;
+      if (tail.row > compare.row) compare.row++;
+      else if (tail.row < compare.row) compare.row--;
+      const debug = "test";
+    }
+    this.updatePosition(tail.row, tail.column, id);
   }
 
   moveRight(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
+      this.tails.forEach((tail) => this.follow(tail.id));
       this.head.column++;
       steps--;
-      this.follow(Direction.R);
     }
   }
   moveLeft(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
+      this.tails.forEach((tail) => this.follow(tail.id));
       this.head.column--;
       steps--;
-      this.follow(Direction.L);
     }
   }
   moveUp(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
+      this.tails.forEach((tail) => this.follow(tail.id));
       this.head.row--;
       steps--;
-      this.follow(Direction.U);
     }
   }
   moveDown(steps: number) {
     while (steps > 0) {
       this.updatePosition(this.head.row, this.head.column, "H");
+      this.tails.forEach((tail) => this.follow(tail.id));
       this.head.row++;
       steps--;
-      this.follow(Direction.D);
     }
   }
 
-  updatePosition(row: number, column: number, sign: "H" | "S" | "T") {
+  updatePosition(row: number, column: number, sign: "H" | "S" | number) {
     if (this.board[row][column] === "S") return;
-    if (this.board[row][column] === "T" && sign == "H") return;
+    if (this.board[row][column] === 9) return;
     this.board[row][column] = sign;
   }
   visited() {
     let count = 0;
     for (let row = 0; row < this.board.length; row++) {
       for (let column = 0; column < this.board[row].length; column++) {
-        if (this.board[row][column] === "T" || this.board[row][column] === "S")
+        if (this.board[row][column] === 9 || this.board[row][column] === "S")
           count++;
       }
     }
-    return count + 1;
+    return count;
   }
 }
