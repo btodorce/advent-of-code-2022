@@ -102,9 +102,17 @@ const debug = [
   0, 20, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 1000,
 ];
 
+function gcd_rec(a, b) {
+  if (b) {
+    return gcd_rec(b, a % b);
+  } else {
+    return Math.abs(a);
+  }
+}
+
 const result = async () => {
   const ROUNDS = 10000;
-  const stream = await processFile("11/dummy.txt");
+  const stream = await processFile("11/data.txt");
   const data = await processInput(stream);
   const rounds: Round[] = [];
   const MAX = Number.MAX_SAFE_INTEGER;
@@ -124,15 +132,25 @@ const result = async () => {
         let second =
           operation.second === "old" ? item : Number(operation.second);
         let worry = 0;
+        const denom = gcd_rec(first, second);
+        first = first >= MAX ? first / denom : first;
+        second = second >= MAX ? second / denom : second;
+        let shouldDebug = false;
 
         switch (operation.operand) {
           case "+":
+            if (first + second > MAX) {
+              shouldDebug = true;
+            }
             worry = first + second;
             break;
           case "-":
             worry = first - second;
             break;
           case "*":
+            if (first * second > MAX) {
+              shouldDebug = true;
+            }
             worry = first * second;
             break;
           default:
@@ -145,6 +163,9 @@ const result = async () => {
         throwing
           ? monkeys[throwTo].items.push(worry)
           : monkeys[throwTo].items.push(worry);
+        if (shouldDebug === true) {
+          const asd = "asd";
+        }
       });
       currentRound.monkeys[monkey.id] = {
         monkey: monkey.id,
