@@ -5,9 +5,12 @@ type ID = {
   column: number;
 };
 
+const signs = ['S', 'H'];
+
 export class Path {
   data: ID;
   value: string | number;
+  char: string;
   steps: number;
   previous: Maybe<Path>;
   next: Path;
@@ -23,15 +26,19 @@ export class Path {
     this.previous = previous;
     this.next = next;
     this.steps = steps;
+    if (typeof value === 'string') this.char = value;
+    else this.char = String.fromCharCode(97 + value);
   }
 }
 
 export class Hill {
   // steps = weight of Path, starting weight is 0 for root Path
-  paths: Path & { steps: number[] };
+  paths: Path[] = [];
   root: Path;
+  stack: Path[] = [];
 
   private visited(node: Path, next: { row: number; column: number }) {
+    if (node === null || node?.previous === null) return;
     let iter = node;
     const { row, column } = next;
     while (iter !== null) {
@@ -43,15 +50,18 @@ export class Hill {
   }
 
   private climbable(node: Path, data: string | number) {
+    if (node === null) return true;
     const { value } = node;
     if (value === 'E') return false;
-    if (data === 'E') return true;
+    if (data === 'E') {
+      return true;
+    }
     if (data === 'S') return false;
     if (typeof data === 'number') {
       const compare = value === 'S' ? 0 : Number(value);
-      if (data - compare < 1) return true;
+      if (data - compare <= 1) return true;
     }
-    return true;
+    return false;
   }
 
   addPath(
@@ -65,12 +75,15 @@ export class Hill {
       row,
       column,
     };
-    const steps = previous !== null ? previous.steps + 1 : 0;
     const canBeClimbed = this.climbable(previous, element);
     if (!canBeClimbed) return;
-    const wasVisited = this.visited(previous, data);
-    if (wasVisited) return;
+    if (previous !== null) {
+      const wasVisited = this.visited(previous, data);
+      if (wasVisited) return;
+    }
+    const steps = previous === null ? 0 : previous?.steps + 1;
     const node = new Path(obj, element, steps, previous, next);
+    const debug = 'as';
     return node;
   }
 }

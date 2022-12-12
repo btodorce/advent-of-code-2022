@@ -7,23 +7,6 @@ const result = async () => {
   const map = [];
   let row = 0;
 
-  const canClimb = (current: Path, next: { row: number; column: number }) => {
-    const { value } = current;
-    const { row, column } = next;
-    if (row < 0 || column < 0) return false;
-    if (row > map.length) return false;
-    if (column > map[row].length) return false;
-    const data = map[row][column];
-    if (data === 'E') return true;
-    if (data === 'S') return false;
-    if (typeof data === 'number') {
-      const compare = value === 'S' ? 0 : Number(value);
-      if (data - compare > 1) return false;
-      return true;
-    }
-    throw new Error('This should not happen');
-  };
-
   for await (const line of stream) {
     const len = line.length;
     map[row] = new Array(len);
@@ -48,28 +31,82 @@ const result = async () => {
 
   while (queue.length > 0) {
     const node = queue.pop();
-    const rows = map.length;
-    const columns = map[node.data.row].length;
+    const rows = map.length - 1;
+    const columns = map[node.data.row].length - 1;
     const { row, column } = node.data;
-    if (node.data.column < columns) {
-      const right = hill.addPath(
-        { row, column: column + 1 },
-        map[row][column + 1],
-        node
-      );
-      if (right) queue.push(right);
-    }
-    if (node.data.column > 0) {
-      const left = hill.addPath(
-        { row, column: column - 1 },
-        map[row][column - 1],
-        node
-      );
-      if (left) queue.push(left);
-    }
-  }
+    const innerQueue: Path[] = [];
+    const l = map[row][column - 1];
+    const r = map[row][column + 1];
+    const u = map[row + 1][column];
+    const d = map[row - 1][column - 1];
+    const left = hill.addPath({ row, column: column - 1 }, l, node);
+    const right = hill.addPath({ row, column: column + 1 }, r, node);
+    const up = hill.addPath({ row: row + 1, column }, u, node);
+    const down = hill.addPath({ row: row - 1, column }, d, node);
 
-  return 0;
+    // checkRight: if (node.data.column < columns && node.data.row === row) {
+    //   const next = hill.addPath(
+    //     { row, column: column + 1 },
+    //     map[row][column + 1],
+    //     node
+    //   );
+    //   if (next) {
+    //     if (next.value === 'E') {
+    //       hill.paths.push(next);
+    //       continue;
+    //     }
+    //     innerQueue.push(next);
+    //   }
+    // }
+    // checkLeft: if (node.data.column > 0 && node.data.row === row) {
+    //   const next = hill.addPath(
+    //     { row, column: column - 1 },
+    //     map[row][column - 1],
+    //     node
+    //   );
+    //   if (next) {
+    //     if (next.value === 'E') {
+    //       hill.paths.push(next);
+    //       continue;
+    //     }
+    //     innerQueue.push(next);
+    //   }
+    // }
+    // checkTop: if (node.data.row < rows && node.data.column === column) {
+    //   const next = hill.addPath(
+    //     { row: row + 1, column },
+    //     map[row + 1][column],
+    //     node
+    //   );
+    //   if (next) {
+    //     if (next.value === 'E') {
+    //       hill.paths.push(next);
+    //       continue;
+    //     }
+    //     innerQueue.push(next);
+    //   }
+    // }
+
+    // checkBottom: if (node.data.row > 0 && node.data.column === column) {
+    //   const next = hill.addPath(
+    //     { row: row - 1, column },
+    //     map[row - 1][column],
+    //     node
+    //   );
+    //   if (next) {
+    //     if (next.value === 'E') {
+    //       hill.paths.push(next);
+    //       continue;
+    //     }
+    //     innerQueue.push(next);
+    //   }
+    // }
+    queue.push(...innerQueue);
+    const debug = '';
+  }
+  const valid = hill.stack.filter((node) => node?.value === 'E');
+  const sorted = valid?.sort?.((first, second) => first.steps - second.steps);
+  return sorted;
 };
 
 result().then();
