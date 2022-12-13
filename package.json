@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "13": "NODE_OPTIONS='--max-old-space-size=8192' ts-node 13/1/index.ts -T"
   },
   "keywords": [],
   "author": "",

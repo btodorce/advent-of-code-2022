@@ -2,9 +2,16 @@ import { processFile } from '../../process-file';
 import { Hill, Path } from './Hill';
 
 const result = async () => {
-  const stream = await processFile('12/dummy.txt');
+  const stream = await processFile('12/data.txt');
   const hill = new Hill();
+  const map = [];
   let row = 0;
+
+  // const inBounds = (row: number, column: number, node: Path) => {
+  //   if (row < 0 || row > map.length - 1) return false;
+  //   if (column < 0 || column > map[row].length - 1) return false;
+  //   return true;
+  // };
 
   for await (const line of stream) {
     const len = line.length;
@@ -22,7 +29,7 @@ const result = async () => {
   if (down) queue.push(down);
 
   while (queue.length > 0) {
-    const node = queue.pop();
+    const node = queue.shift();
     const { row, column } = node.data;
     const left = hill.addPath({ row, column: column - 1 }, node);
     const right = hill.addPath({ row, column: column + 1 }, node);
@@ -34,9 +41,7 @@ const result = async () => {
     if (up) queue.push(up);
     const debug = '';
   }
-  const valid = hill.stack.filter((node) => node?.value === 'E');
-  const sorted = valid?.sort?.((first, second) => first.steps - second.steps);
-  return sorted;
+  return 0;
 };
 
-result().then();
+result().then((data) => console.log(data));
