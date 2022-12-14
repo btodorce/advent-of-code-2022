@@ -1,25 +1,24 @@
+// @ts-nocheck
 import { processFile } from '../../process-file';
 import { Hill, Path } from './Hill';
 
 const result = async () => {
-  const stream = await processFile('12/data.txt');
+  const stream = await processFile('12/dummy.txt');
   const hill = new Hill();
+  const visited = [];
   const map = [];
   let row = 0;
 
-  // const inBounds = (row: number, column: number, node: Path) => {
-  //   if (row < 0 || row > map.length - 1) return false;
-  //   if (column < 0 || column > map[row].length - 1) return false;
-  //   return true;
-  // };
-
   for await (const line of stream) {
     const len = line.length;
-    hill.map[row] = new Array(len);
-    hill.map[row] = line.split('').map((data) => data);
+    map[row] = new Array(len);
+    map[row] = line.split('').map((data) => data);
+    visited[row] = new Array(len).fill(false);
     row++;
   }
   const queue: Path[] = [];
+  hill.visited = visited;
+  hill.map = map;
   // initiate siblings
   const root = { row: 0, column: 0 };
   hill.root = hill.addPath(root);
@@ -41,7 +40,8 @@ const result = async () => {
     if (up) queue.push(up);
     const debug = '';
   }
-  return 0;
+  const leastDistance = hill.leastDistance?.visited?.length;
+  return leastDistance ?? 0;
 };
 
 result().then((data) => console.log(data));

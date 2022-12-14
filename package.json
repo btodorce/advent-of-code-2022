@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "13": "NODE_OPTIONS='--max-old-space-size=8192' ts-node 13/1/index.ts -T"
+    "12": "NODE_OPTIONS='--max-old-space-size=8192' ts-node -T 12/1/index.ts"
   },
   "keywords": [],
   "author": "",

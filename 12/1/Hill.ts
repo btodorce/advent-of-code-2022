@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Both, Maybe } from '../../types';
 
 type ID = {
@@ -44,6 +45,7 @@ export class Hill {
   paths = [];
   map: any[] = [];
   leastDistance: Path = null;
+  visited: [];
 
   private climbable(node: Path, data: string | number) {
     if (node === null) return true;
@@ -76,6 +78,8 @@ export class Hill {
       row,
       column,
     };
+    const visited = this.visited[row][column];
+    if (visited === true) return;
     const inBounds = this.inBounds(row, column, previous);
     if (inBounds === false) return;
     const element = this.map[row][column];
@@ -86,10 +90,18 @@ export class Hill {
           : element.charCodeAt(0) - 96
         : element;
     const climbable = this.climbable(previous, current);
-    const visited = this.visited(data, previous);
-    if (visited === true) return;
+    // const visited = this.visited(data, previous);
+    // if (visited === true) return;
     if (climbable === false) return;
     const node = new Path(obj, current, element, previous, next);
+    if (element === 'E') {
+      if (this.leastDistance === null) this.leastDistance = node;
+      else if (this.leastDistance?.visited?.length > node.visited.length)
+        this.leastDistance = node;
+    }
+    console.log(
+      `current: ${node.char}  [${node.data.row}][${node.data.column}] previous: ${previous?.char} [${previous?.data?.row}][${previous?.data.column}] `
+    );
     return node;
   }
 }
