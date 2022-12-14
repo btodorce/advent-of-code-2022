@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "12": "NODE_OPTIONS='--max-old-space-size=8192' ts-node -T 12/1/index.ts"
+    "task": "tsc 14/1/index.ts && node --stack-size=200000 14/1/index.js"
   },
   "keywords": [],
   "author": "",

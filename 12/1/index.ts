@@ -3,7 +3,7 @@ import { processFile } from '../../process-file';
 import { Hill, Path } from './Hill';
 
 const result = async () => {
-  const stream = await processFile('12/dummy.txt');
+  const stream = await processFile('12/data.txt');
   const hill = new Hill();
   const visited = [];
   const map = [];
@@ -17,7 +17,6 @@ const result = async () => {
     row++;
   }
   const queue: Path[] = [];
-  hill.visited = visited;
   hill.map = map;
   // initiate siblings
   const root = { row: 0, column: 0 };
@@ -42,6 +41,7 @@ const result = async () => {
   }
   const leastDistance = hill.leastDistance?.visited?.length;
   return leastDistance ?? 0;
+  return 0;
 };
 
 result().then((data) => console.log(data));
