@@ -2,70 +2,52 @@ import { Interface } from 'readline';
 import { processFile } from '../../process-file';
 import { PressureSystem, Valve } from './PreasureSystem';
 
-type Tunnel = {
+type Tunnels = {
   [key: string]: {
-    flow: number;
-    valves: { name: string; flow: number }[];
+    flowRate: number;
+    valves: string[];
   };
 };
 
-type Instruction = {
-  valve: string;
-  flow: number;
-  adjacencies: string[];
-};
-
 const processInput = async (stream: Interface) => {
-  const tunnels: Tunnel = {};
-  const instructions: Instruction[] = [];
+  const tunnels: Tunnels = {};
+  const permutations = [];
   for await (const line of stream) {
     let [_, valve, flowRate, valves] = line.split(/Valve |=|; /);
     valve = valve.replace('has flow rate', '').trim();
     flowRate = flowRate.trim();
-    const flow = parseInt(flowRate);
     valves = valves.includes('tunnels lead to valves')
       ? valves.replace('tunnels lead to valves ', '')
       : valves.replace('tunnel leads to valve ', '');
-    const adjacencies = valves?.includes(',') ? valves.split(', ') : [valves];
-    const valveNodes = adjacencies.map((node) => {});
+    const next = valves?.includes(',') ? valves.split(', ') : [valves];
     tunnels[valve] = {
-      flow,
-      valves: adjacencies,
+      flowRate: parseInt(flowRate),
+      valves: next,
     };
-    instructions.push({
-      valve,
-      flow,
-      adjacencies,
-    });
-  }
-  return { tunnels, instructions };
-};
-
-const generatePressureSystem = (
-  tunnels: Tunnel,
-  instructions: Instruction[]
-) => {
-  const ps = new PressureSystem();
-  let iter = ps.root;
-  for (const { valve, flow, adjacencies } of instructions) {
-    if (ps.root === null) {
-      ps.root = new Valve(valve, flow);
-      iter = ps.root;
+    if (permutations.length > 0) {
+      for (const current of next) {
+        const length = permutations.length;
+        for (let index = 0; index < length; index++) {
+          const permutation = permutations[index];
+          const lastChar = permutation[permutation.length - 1];
+          if (valve === lastChar) {
+            permutations.push([...permutation, current]);
+          }
+        }
+      }
     } else {
-    }
-    for (const adjacent of adjacencies) {
-      const { flow } = tunnels[adjacent];
-      const newValve = new Valve(adjacent, flow, iter);
-      iter.addValve(newValve);
+      for (const current of next) {
+        permutations.push([valve, current]);
+      }
     }
   }
-  return ps;
+  return [tunnels, permutations];
 };
 
 const result = async () => {
+  const ITERATIONS = 30;
   const stream = await processFile('16/dummy.txt');
-  const { tunnels, instructions } = await processInput(stream);
-  const ps = generatePressureSystem(tunnels, instructions);
+  const [tunnels, permutations] = await processInput(stream);
   const debug = true;
 };
 
