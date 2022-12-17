@@ -133,6 +133,14 @@ const getRow = (row: number, rows: Position) => {
   if (row < rows.y) return rows.y - row;
   throw new Error('This should not happen');
 };
+
+const getColumn = (column: number, columns: Position) => {
+  if (column === rows.x) return 0;
+  if (column > rows.x) return column - columns.x;
+  if (column < rows.y) return columns.y - column;
+  throw new Error('This should not happen');
+};
+
 const fillSand = (
   map: [],
   sand: { row: number; column: number },
@@ -182,10 +190,10 @@ const result = async () => {
     row: lastRow,
     column: columns.y,
   });
-  const sum = filledMap.reduce((acc, row) => {
-    const count = row.filter((item) => item === sign);
-    return acc + count.length;
-  }, 0);
+  const sum = filledMap.reduce(
+    (acc, row) => acc + row.filter((item) => item === sign).length,
+    0
+  );
 
   return sum;
 };
