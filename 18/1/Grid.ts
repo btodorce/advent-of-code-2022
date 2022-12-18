@@ -74,8 +74,6 @@ export class Grid {
 
   calculateSurfaceArea() {
     for (let current = 0; current < this.cubes.length; current++) {
-      const currentLength = this.cubes[current].faces.length;
-      const { x, y, z } = this.cubes[current];
       for (let next = current + 1; next < this.cubes.length; next++) {
         const faces = this.cubes[current].faces;
         const result = faces.filter((face) => {
@@ -91,7 +89,6 @@ export class Grid {
           this.cubes[current].sides -= result.length;
           this.cubes[next].sides -= result.length;
         }
-        const debug = true;
       }
     }
   }
