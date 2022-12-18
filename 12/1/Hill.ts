@@ -1,5 +1,3 @@
-import { Both, Maybe } from '../../types';
-
 type ID = {
   row: number;
   column: number;
@@ -10,41 +8,39 @@ export class Path {
   value: string | number;
   char: string;
   steps: number;
-  previous: Maybe<Path>;
-  visited: ID[] = [];
-  next = [];
-  constructor(
-    data: ID,
-    value: string | number,
-    char: string,
-    previous: Path,
-    next: Path
-  ) {
+  constructor(data: ID, value: string | number, char: string) {
     this.data = data;
     this.char = char;
     this.value = value;
-    this.previous = previous;
-    if (next) this.next.push(next);
-    if (previous === null) this.visited = [data];
-    else {
-      if (char === 'E') this.visited = [...previous.visited];
-      else
-        this.visited =
-          previous?.visited?.length > 0 ? [...previous.visited, data] : [data];
-    }
   }
 }
 
-const chars = ['S', 'U'];
-
 export class Hill {
-  // steps = weight of Path, starting weight is 0 for root Path
-  root: Path;
-  map: any[] = [];
+  private map: any[] = [];
+  private adjacents: Map<string, ID[]>;
+  visited: ID[] = [];
+  constructor(map: any[]) {
+    this.adjacents = new Map();
+    this.map = map;
+    for (let row = 0; row < map.length; row++) {
+      for (let column = 0; column < map[row].length; column++) {
+        this.addLocation({ row, column });
+      }
+    }
+  }
 
-  private climbable(node: Path, data: string | number) {
+  private getData(node: ID) {
+    const { row, column } = node;
+    const char = this.map[row][column];
+    const value =
+      char !== 'S' ? (char === 'E' ? 26 : char.charCodeAt(0) - 96) : char;
+    return { char, value };
+  }
+
+  private climbable(node: ID, current: ID) {
     if (node === null) return true;
-    const { char, value } = node;
+    const { char, value } = this.getData(node);
+    const { value: data } = this.getData(current);
     if (char === 'E') return false;
     if (data === 'S') return false;
     if (typeof data === 'number') {
@@ -53,45 +49,44 @@ export class Hill {
     }
     return false;
   }
-  private inBounds(row: number, column: number, node: Path) {
+
+  private getKey(path: ID) {
+    const key = `${path.row}${path.column}`;
+    return key;
+  }
+
+  private inBounds(row: number, column: number) {
     if (row < 0 || row > this.map.length - 1) return false;
     if (column < 0 || column > this.map[row].length - 1) return false;
     return true;
   }
 
-  private visited(data: ID, node: Path) {
-    if (node === null) return false;
-    return node?.visited?.find?.(
-      (current) => current?.column === data.column && current.row === data.row
-    )
-      ? true
-      : false;
+  addLocation(data: ID) {
+    const key = this.getKey(data);
+    this.adjacents.set(key, []);
   }
 
-  addPath(data: ID, previous: Path = null, next: Path = null) {
-    const { row, column } = data;
-    const obj = {
-      row,
-      column,
-    };
-    const inBounds = this.inBounds(row, column, previous);
-    if (inBounds === false) return;
-
-    const element = this.map[row][column];
-    const current =
-      element !== 'S'
-        ? element === 'E'
-          ? 26
-          : element.charCodeAt(0) - 96
-        : element;
-    const climbable = this.climbable(previous, current);
-    if (climbable === false) return;
-
-    const visited = this.visited(data, previous);
-    if (visited === true) return;
-
-    const node = new Path(obj, current, element, previous, next);
-    if (previous) previous.next.push(node);
-    return node;
+  addPath(path: ID, previous: ID) {
+    const { row, column } = path;
+    const inBounds = this.inBounds(row, column);
+    if (inBounds === false) {
+      return;
+    }
+    const visited = this.visited.find(
+      (node) => node.row === row && node.column === column
+    );
+    if (visited) {
+      return;
+    }
+    const climbable = this.climbable(previous, path);
+    if (climbable === false) {
+      return;
+    }
+    const key = this.getKey(path);
+    const prevKey = this.getKey(previous);
+    this.adjacents.get(key).push(previous);
+    this.adjacents.get(prevKey).push(path);
+    this.visited.push(previous);
+    return path;
   }
 }

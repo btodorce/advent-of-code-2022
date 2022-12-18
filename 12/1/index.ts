@@ -2,8 +2,7 @@ import { processFile } from '../../process-file';
 import { Hill, Path } from './Hill';
 
 const result = async () => {
-  const stream = await processFile('12/dummy.txt');
-  const hill = new Hill();
+  const stream = await processFile('12/data.txt');
   const visited = [];
   const map = [];
   let row = 0;
@@ -15,19 +14,17 @@ const result = async () => {
     visited[row] = new Array(len).fill(false);
     row++;
   }
-  const queue: Path[] = [];
-  hill.map = map;
-  // initiate siblings
+  const queue = [];
+  const hill = new Hill(map);
   const root = { row: 0, column: 0 };
-  hill.root = hill.addPath(root);
-  const right = hill.addPath({ row: 0, column: 1 }, hill.root);
-  const down = hill.addPath({ row: 1, column: 0 }, hill.root);
+  const right = hill.addPath({ row: 0, column: 1 }, root);
+  const down = hill.addPath({ row: 1, column: 0 }, root);
   if (right) queue.push(right);
   if (down) queue.push(down);
 
   while (queue.length > 0) {
     const node = queue.shift();
-    const { row, column } = node.data;
+    const { row, column } = node;
     const left = hill.addPath({ row, column: column - 1 }, node);
     const right = hill.addPath({ row, column: column + 1 }, node);
     const down = hill.addPath({ row: row + 1, column }, node);
