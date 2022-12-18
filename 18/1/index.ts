@@ -1,19 +1,15 @@
-import { Interface } from 'readline';
 import { processFile } from '../../process-file';
-import { createWriteStream } from 'fs';
-
-const processInput = async (stream: Interface) => {
-  const data: any[][][] = [];
-
-  for await (const line of stream) {
-    const debug = true;
-  }
-  return data;
-};
+import { Grid } from '../Grid';
 
 const result = async () => {
-  const stream = await processFile('14/dummy.txt');
-  const data = await processInput(stream);
+  const stream = await processFile('18/debug.txt');
+  const grid = new Grid();
+  for await (const line of stream) {
+    const [x, y, z] = line.split(',');
+    grid.addCube(x, y, z);
+    const debug = true;
+  }
+  const result = grid.surfaceArea();
   return 0;
 };
 
