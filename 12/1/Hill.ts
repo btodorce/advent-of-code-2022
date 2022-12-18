@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Both, Maybe } from '../../types';
 
 type ID = {
@@ -13,7 +12,7 @@ export class Path {
   steps: number;
   previous: Maybe<Path>;
   visited: ID[] = [];
-  next: Path;
+  next = [];
   constructor(
     data: ID,
     value: string | number,
@@ -25,7 +24,7 @@ export class Path {
     this.char = char;
     this.value = value;
     this.previous = previous;
-    this.next = next;
+    if (next) this.next.push(next);
     if (previous === null) this.visited = [data];
     else {
       if (char === 'E') this.visited = [...previous.visited];
@@ -41,10 +40,7 @@ const chars = ['S', 'U'];
 export class Hill {
   // steps = weight of Path, starting weight is 0 for root Path
   root: Path;
-  stack: Path[] = [];
-  paths = [];
   map: any[] = [];
-  leastDistance: Path = null;
 
   private climbable(node: Path, data: string | number) {
     if (node === null) return true;
@@ -80,8 +76,7 @@ export class Hill {
     };
     const inBounds = this.inBounds(row, column, previous);
     if (inBounds === false) return;
-    const visited = this.visited(data, previous);
-    if (visited === true) return;
+
     const element = this.map[row][column];
     const current =
       element !== 'S'
@@ -91,13 +86,12 @@ export class Hill {
         : element;
     const climbable = this.climbable(previous, current);
     if (climbable === false) return;
+
+    const visited = this.visited(data, previous);
+    if (visited === true) return;
+
     const node = new Path(obj, current, element, previous, next);
-    if (element === 'E') {
-      this.paths.push(node);
-      if (this.leastDistance === null) this.leastDistance = node;
-      else if (this.leastDistance?.visited?.length > node.visited.length)
-        this.leastDistance = node;
-    }
+    if (previous) previous.next.push(node);
     return node;
   }
 }

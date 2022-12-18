@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { processFile } from '../../process-file';
 import { Hill, Path } from './Hill';
 
 const result = async () => {
-  const stream = await processFile('12/data.txt');
+  const stream = await processFile('12/dummy.txt');
   const hill = new Hill();
   const visited = [];
   const map = [];
@@ -39,8 +38,6 @@ const result = async () => {
     if (up) queue.push(up);
     const debug = '';
   }
-  const leastDistance = hill.leastDistance?.visited?.length;
-  return leastDistance ?? 0;
   return 0;
 };
 
