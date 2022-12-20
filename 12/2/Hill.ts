@@ -1,3 +1,5 @@
+import { Both, Maybe } from '../../types';
+
 type ID = {
   row: number;
   column: number;
@@ -8,25 +10,40 @@ export class Path {
   value: string | number;
   char: string;
   steps: number;
-  constructor(data: ID, value: string | number, char: string) {
+  previous: Maybe<Path>;
+  visited: ID[] = [];
+  next: Path;
+  constructor(
+    data: ID,
+    value: string | number,
+    char: string,
+    previous: Path,
+    next: Path
+  ) {
     this.data = data;
     this.char = char;
     this.value = value;
+    this.previous = previous;
+    this.next = next;
+    if (previous === null) this.visited = [data];
+    else {
+      if (char === 'E') this.visited = [...previous.visited];
+      else
+        this.visited =
+          previous?.visited?.length > 0 ? [...previous.visited, data] : [data];
+    }
   }
 }
 
+const chars = ['S', 'U'];
+
 export class Hill {
-  private root: Path;
-  private map: any[] = [];
-  private adjacents: Map<Path, []> = new Map();
-  constructor(map: any[]) {
-    this.map = map;
-    for (let row = 0; row < map.length; row++) {
-      for (let column = 0; column < map[row].length; column++) {
-        this.addLocation({ row, column });
-      }
-    }
-  }
+  // steps = weight of Path, starting weight is 0 for root Path
+  root: Path;
+  stack: Path[] = [];
+  paths = [];
+  map: any[] = [];
+  leastDistance: Path = null;
 
   private climbable(node: Path, data: string | number) {
     if (node === null) return true;
@@ -45,21 +62,13 @@ export class Hill {
     return true;
   }
 
-  addLocation(data: ID) {
-    const { row, column } = data;
-    const element = this.map[row][column];
-    const id = {
-      row,
-      column,
-    };
-    const current =
-      element !== 'S'
-        ? element === 'E'
-          ? 26
-          : element.charCodeAt(0) - 96
-        : element;
-    const node = new Path(id, current, element);
-    this.adjacents.set(node, []);
+  private visited(data: ID, node: Path) {
+    if (node === null) return false;
+    return node?.visited?.find?.(
+      (current) => current?.column === data.column && current.row === data.row
+    )
+      ? true
+      : false;
   }
 
   addPath(data: ID, previous: Path = null, next: Path = null) {
@@ -70,7 +79,8 @@ export class Hill {
     };
     const inBounds = this.inBounds(row, column, previous);
     if (inBounds === false) return;
-
+    const visited = this.visited(data, previous);
+    if (visited === true) return;
     const element = this.map[row][column];
     const current =
       element !== 'S'
@@ -78,9 +88,15 @@ export class Hill {
           ? 26
           : element.charCodeAt(0) - 96
         : element;
-
-    const node = new Path(obj, current, element);
-    this.adjacents.set(node, []);
+    const climbable = this.climbable(previous, current);
+    if (climbable === false) return;
+    const node = new Path(obj, current, element, previous, next);
+    if (element === 'E') {
+      this.paths.push(node);
+      if (this.leastDistance === null) this.leastDistance = node;
+      else if (this.leastDistance?.visited?.length > node.visited.length)
+        this.leastDistance = node;
+    }
     return node;
   }
 }

@@ -8,8 +8,10 @@ type Pair = {
   };
 };
 
+// two arrays to same depth
+
 const compare = (first: any[], second: any[]) => {
-  for (const [index, left] of first) {
+  for (const [index, left] of first.entries()) {
     if (Array.isArray(first[index]) && Array.isArray(second[index])) {
       compare(left[index], second[index]);
     }
@@ -50,67 +52,10 @@ const result = async () => {
   const stream = await processFile('13/dummy.txt');
   const pairs = await processInput(stream);
   const order = [];
-  const debug = [5, 6];
-
-  outer: for (let [id, { first, second }] of Object.entries(pairs)) {
-    const pairId = Number(id) + 1;
-    // Bring to equal depth
-    if (first.length < 1) order.push(pairId);
-    const left = first.map((current, index) => {
-      const next = second[index];
-      if (typeof current === 'number' && typeof current === 'number')
-        return current;
-      else if (Array.isArray(next) && Array.isArray(current))
-        return depth(current) > 2 ? current.flat() : [current];
-      else if (Array.isArray(next) && !Array.isArray(current)) return [current];
-      return current;
-    });
-    const right = second.map((current, index) => {
-      const previous = first[index];
-      if (typeof previous === 'number' && typeof current === 'number')
-        return current;
-      else if (Array.isArray(previous) && Array.isArray(current))
-        return depth(current) > 2 ? current.flat() : [current];
-      else if (Array.isArray(previous) && !Array.isArray(current))
-        return [current];
-      return current;
-    });
-    const deb = true;
-    left.forEach((current, index) => {
-      if (!right[index]) {
-        return;
-      }
-      const next = right[index];
-      if (Array.isArray(current) && Array.isArray(next)) {
-        const valid = compare(current, next);
-      }
-      const test = 'test';
-    });
-    //   if (!right[index]) {
-    //     continue outer;
-    //   }
-    //   const next = right[index];
-    //   if (Array.isArray(current) && Array.isArray(next)) {
-    //     const valid = compare(current, next);
-    //   }
-    //   if (typeof sLeft === 'number' && typeof sRight === 'number') {
-    //     if (sLeft < sRight) {
-    //       order.push(pairId);
-    //       continue outer;
-    //     }
-    //   } else if (Array.isArray(sLeft) && Array.isArray(sRight)) {
-    //     const valid = compare(sLeft, sRight);
-    //     if (valid) {
-    //       order.push(pairId);
-    //       continue outer;
-    //     }
-    //     const test = '';
-    //   } else {
-    //     throw new Error('This should not happen');
-    //   }
-    const test = 'test';
+  for (const pair of Object.values(pairs)) {
+    const result = compare(pair.first, pair.second);
+    const debug = true;
   }
-  //   const sum = order.reduce((total, current) => (total += current));
   return 0;
 };
 
