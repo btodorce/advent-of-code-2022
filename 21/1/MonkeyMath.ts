@@ -37,7 +37,6 @@ export class MonkeyMath {
   }
   addMonkey(name: string, value?: number) {
     const monkey = value ? new MonkeyNumber(value) : new MonkeyOperation();
-    // this.monkeys.push(monkey);
     this.monkeys.set(name, monkey);
   }
 
@@ -47,7 +46,6 @@ export class MonkeyMath {
 
   update(name: string, left: string, right: string, operation: string) {
     const node = this.get(name);
-    // const leftNode = this.monkeys.find((m) => m.name === left);
     const leftNode = this.get(left);
     const rightNode = this.get(right);
     if (node instanceof MonkeyOperation) {
@@ -90,24 +88,41 @@ export class MonkeyMath {
   }
 
   updateValues() {
-    // while (!this.root.value.right && !this.root.value.left) {
-    for (const [key, monkey] of this.monkeys) {
-      const left = this.sibling(monkey, 'left');
-      const right = this.sibling(monkey, 'right');
-      if (left && right) {
-        const value = this.result(left, right, monkey.value.operation);
-        monkey.value.left = left;
-        monkey.value.right = right;
-        monkey.value.result = value;
-        continue;
+    while (!this.root.value.result) {
+      const left = this.root.left.value as any;
+      const right = this.root.right.value as any;
+      if (left.result && right.result) {
+        const value = this.result(
+          left.result,
+          right.result,
+          this.root.value.operation
+        );
+        this.root.value.result = value;
+        break;
       }
-      if (left) {
-        monkey.value.left = left;
+      for (const [key, monkey] of this.monkeys) {
+        const left = monkey.left?.value?.result ?? this.sibling(monkey, 'left');
+        const right =
+          monkey.right?.value?.result ?? this.sibling(monkey, 'right');
+        if (left && right) {
+          if (key === 'root') {
+            const debug = true;
+          }
+          const value = this.result(left, right, monkey.value.operation);
+          monkey.value.left = left;
+          monkey.value.right = right;
+          monkey.value.result = value;
+          this.monkeys.set(key, monkey);
+          continue;
+        }
+        if (left) {
+          monkey.value.left = left;
+        }
+        if (right) {
+          monkey.value.right = right;
+        }
+        const debug = true;
       }
-      if (right) {
-        monkey.value.right = right;
-      }
-      const debug = true;
     }
     const debug = true;
   }
