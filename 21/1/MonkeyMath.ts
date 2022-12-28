@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Both, Maybe } from '../../types';
 
 class MonkeyNumber {
@@ -60,15 +61,26 @@ export class MonkeyMath {
     direction: 'left' | 'right'
   ): number | null {
     if (direction === 'left') {
-      if (monkey.left instanceof MonkeyNumber) {
+      if (
+        monkey.left instanceof MonkeyNumber &&
+        monkey.right instanceof MonkeyNumber
+      ) {
+        return this.result(
+          monkey.left.value,
+          monkey.right.value,
+          monkey.value.operation
+        );
+      }
+      if (monkey.left?.value?.left) {
         return monkey.left.value;
       }
-      if (monkey.left?.value?.left) return monkey.left.value.left;
     }
     if (monkey.right instanceof MonkeyNumber) {
       return monkey.right.value;
     }
-    if (monkey.right?.value?.right) return monkey.right.value.right;
+    if (monkey.right?.value?.right) {
+      return monkey.right.value.right;
+    }
     null;
   }
 
@@ -88,26 +100,11 @@ export class MonkeyMath {
   }
 
   updateValues() {
-    while (!this.root.value.result) {
-      const left = this.root.left.value as any;
-      const right = this.root.right.value as any;
-      if (left.result && right.result) {
-        const value = this.result(
-          left.result,
-          right.result,
-          this.root.value.operation
-        );
-        this.root.value.result = value;
-        break;
-      }
+    while (!this.root.left?.value?.result && !this.root.right?.value.result) {
       for (const [key, monkey] of this.monkeys) {
-        const left = monkey.left?.value?.result ?? this.sibling(monkey, 'left');
-        const right =
-          monkey.right?.value?.result ?? this.sibling(monkey, 'right');
+        const left = this.sibling(monkey, 'left');
+        const right = this.sibling(monkey, 'right');
         if (left && right) {
-          if (key === 'root') {
-            const debug = true;
-          }
           const value = this.result(left, right, monkey.value.operation);
           monkey.value.left = left;
           monkey.value.right = right;
@@ -124,7 +121,14 @@ export class MonkeyMath {
         const debug = true;
       }
     }
+    const left = this.root.left as any;
+    const right = this.root.right as any;
+    const sum = this.result(
+      left.value.result,
+      right.value.result,
+      this.root.value.operation
+    );
+    return sum;
     const debug = true;
   }
-  // }
 }

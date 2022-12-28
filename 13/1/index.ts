@@ -8,19 +8,17 @@ type Pair = {
   };
 };
 
-// two arrays to same depth
+type CompareInput = any[];
 
-const compare = (first: any[], second: any[]) => {
-  for (const [index, left] of first.entries()) {
-    if (Array.isArray(first[index]) && Array.isArray(second[index])) {
-      compare(left[index], second[index]);
-    }
-    if (!second[index]) return false;
-    const right = second[index];
-    if (left < right) return true;
-    if (left === right) continue;
-    if (left > right) return false;
-  }
+const compare = (
+  a: CompareInput,
+  b: CompareInput,
+  _?: CompareInput,
+  __?: CompareInput
+) => {
+  const [first, ...restFirst] = a;
+  const [second, ...restSecond] = b;
+  const debug = true;
   return true;
 };
 
@@ -45,15 +43,14 @@ const processInput = async (stream: Interface): Promise<Pair> => {
   return pairs;
 };
 
-const depth = (arr) =>
-  arr.reduce((count, v) => (!Array.isArray(v) ? count : 1 + depth(v)), 1);
-
 const result = async () => {
   const stream = await processFile('13/dummy.txt');
   const pairs = await processInput(stream);
   const order = [];
   for (const pair of Object.values(pairs)) {
-    const result = compare(pair.first, pair.second);
+    const [first, ...rest] = pair.first;
+    const [second, ...others] = pair.second;
+    const comparing = compare(pair.first, pair.second);
     const debug = true;
   }
   return 0;
